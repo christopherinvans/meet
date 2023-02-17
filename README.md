@@ -23,7 +23,7 @@ Feature 1: Filter Events by City
 	Scenario 3: When the user searches for a city, a list of events for this city should be shown.
 		Given the user was typing “Spokane” in the text box, and a list of suggested cities is showing,
 		When the user selects a city (Spokane, WA, USA) for the list of suggested cities,
-		Then the user city should be changed to the selected city and the user should receive a list of upcoming 				events in that city.
+		Then the user city should be changed to the selected city and the user should receive a list of upcoming events in that city.
 
 Feature 2: Show/Hide Event Details
 
@@ -42,7 +42,7 @@ Feature 2: Show/Hide Event Details
 	Scenario 3: User can collapse an event to hide its details.
 		Given specific event is expanded with details,
 		When user pushes the button “Back” for specific event,
-		Then specific event is collapsed, details are hidden, and user receives list of upcoming events with general 			info only.
+		Then specific event is collapsed, details are hidden, and user receives list of upcoming events with general info only.
 
 Feature 3: Specify Number of Events
 
