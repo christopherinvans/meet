@@ -3,9 +3,9 @@ service: auth-server
 provider:
   name: aws
   runtime: nodejs12.x
-  region: us-west-2
+  region: us-west-1
   timeout: 60
-   environment:
+  environment:
     CLIENT_ID: ${file(config.json):CLIENT_ID}
     CLIENT_SECRET: ${file(config.json):CLIENT_SECRET}
     PROJECT_ID: ${file(config.json):PROJECT_ID}
