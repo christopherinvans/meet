@@ -60,4 +60,32 @@ describe("<App /> component", () => {
         expect(AppWrapper.state('events')).toEqual(allEvents);
         AppWrapper.unmount();
       });
+      test("check if number of events is properly passed on as a prop to NumberOfEvents", () => {
+        const AppWrapper = mount(<App />);
+        AppWrapper.setState({ numberOfEvents: 20 });
+        expect(AppWrapper.find(NumberOfEvents).props().num).toBe(20);
+        AppWrapper.unmount();
+      });
+    
+      test("check if state in the app changes on input change in NumberOfEvents", () => {
+        const AppWrapper = mount(<App />);
+        const NumberOfEventsWrapper = AppWrapper.find(NumberOfEvents);
+        NumberOfEventsWrapper.find(".num").simulate("change", {
+          target: { value: 12 },
+        });
+        expect(NumberOfEventsWrapper.state("num")).toBe(12);
+        expect(AppWrapper.state("numberOfEvents")).toBe(12);
+        AppWrapper.unmount();
+      });
+    
+      test("check if events match the content of the mock data", async () => {
+        const AppWrapper = mount(<App />);
+        const NumberOfEventsWrapper = AppWrapper.find(NumberOfEvents);
+        NumberOfEventsWrapper.find(".num").simulate("change", {
+          target: { value: 10 },
+        });
+        await getEvents();
+        expect(AppWrapper.state("events")).toEqual(mockData.slice(0, 10));
+        AppWrapper.unmount();
+      });
   });

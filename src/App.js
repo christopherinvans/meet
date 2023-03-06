@@ -9,10 +9,21 @@ import './nprogress.css';
 class App extends Component {
   state = {
     events: [],
-    locations: []
-  }
+    locations: [],
+    numberOfEvents: 32,
+  };
+
   componentDidMount() {
     this.mounted = true;
+    if (!navigator.onLine) {
+      this.setState({
+        infoText: "You are offline. Data shown may be out-of-date.",
+      });
+    } else {
+      this.setState({
+        infoText: "",
+      });
+    }
     getEvents().then((events) => {
       if (this.mounted) {
         this.setState({ events, locations: extractLocations(events) });
@@ -20,19 +31,36 @@ class App extends Component {
     });
   }
 
-  componentWillUnmount(){
+  getData = () => {
+    const { locations, events } = this.state;
+    const data = locations.map((location) => {
+      const number = events.filter((event) => event.location === location)
+        .length; //Maps the locations and filters events by each location to get the length of the resulting array
+      const city = location.split(",").shift(); //Splits location at every comma to only return city
+      return { city, number };
+    });
+    return data;
+  };
+
+  componentWillUnmount() {
     this.mounted = false;
   }
-  updateEvents = (location) => {
+
+  updateEvents = (location, eventCount) => {
+    const numberOfEvents = eventCount || this.state.numberOfEvents;
     getEvents().then((events) => {
-      const locationEvents = (location === 'all') ?
-        events :
-        events.filter((event) => event.location === location);
+      const locationEvents =
+        location === "all"
+          ? events
+          : events.filter((event) => event.location === location);
+      const filteredEvents = locationEvents.slice(0, numberOfEvents);
       this.setState({
-        events: locationEvents
+        events: filteredEvents,
+        numberOfEvents: numberOfEvents,
       });
     });
-  }
+  };
+
   render() {
     return (
       <div className="App">
