@@ -8,19 +8,12 @@ class NumberOfEvents extends Component {
    };
  
    changeNum = (value) => {
-     if (value < 1 || value > 32) {
-       this.setState({ 
-         errorText: "Select number from 1 to 32", 
-         num: value 
-       });
-     } else {
-       this.setState({ 
-         errorText: "",
-         num: value
-       });
-     }
-     this.props.updateNumberOfEvents(undefined, value);
-   }
+    this.setState({ num: value });
+    this.props.updateNumberOfEvents(value);
+    if (value < 1 || value > 32) {
+      this.setState({ errorText: "Select number from 1 to 32" });
+    } else this.setState({ errorText: "" });
+  };
  
    componentDidMount() {
      this.setState({ num: this.props.num || 32 });

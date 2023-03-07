@@ -63,7 +63,7 @@ describe("<App /> component", () => {
       test("check if number of events is properly passed on as a prop to NumberOfEvents", () => {
         const AppWrapper = mount(<App />);
         AppWrapper.setState({ numberOfEvents: 20 });
-        expect(AppWrapper.find(NumberOfEvents).props().num).toBe(20);
+        expect(AppWrapper.find(NumberOfEvents).props().numberOfEvents).toBe(20);
         AppWrapper.unmount();
       });
     
