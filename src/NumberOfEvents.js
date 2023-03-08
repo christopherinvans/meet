@@ -1,50 +1,42 @@
 
 import React, { Component } from "react";
 import { ErrorAlert } from "./Alert";
-
- class NumberOfEvents extends Component {
-   state = { 
-    num: 32,
-   errorText: "",
+class NumberOfEvents extends Component {
+  state = {
+    numberOfEvents: 32,
   };
 
-  changeNum = (value) => {
-    if (value < 1 || value > 32) {
-      this.setState({ 
-        errorText: "Select number from 1 to 32", 
-        num: value 
+  handleInputChanged = (event) => {
+    const value = event.target.value;
+    this.props.updateEvents(null, value);
+    this.setState({ numberOfEvents: value });
+
+    if (value < 1) {
+      this.setState({
+        infoText: "Select number from 1 to 32",
       });
     } else {
-      this.setState({ 
-        errorText: "",
-        num: value
+      this.setState({
+        infoText: "",
       });
     }
-    this.props.updateNumberOfEvents(undefined, value);
-  }
-
-  componentDidMount() {
-    this.setState({ num: this.props.num || 32 });
-  }
+  };
 
   render() {
-    const { num, errorText } = this.state;
-
+    const { numberOfEvents } = this.state;
     return (
-      <div>
-        <ErrorAlert text={errorText} />
-        <label>
-          Number of events: 
-          <input
-            className="num"
-            type="number"
-            value={num}
-            onChange={(event) => this.changeNum(event.target.value)}
-          ></input>
-        </label>
+      <div className="numberOfEvents">
+        <label>Number of Events: </label>
+        <input
+          type="text"
+          id="numberOfEvents__input"
+          value={numberOfEvents}
+          onChange={this.handleInputChanged}
+        />
+        <ErrorAlert text={this.state.infoText} />
       </div>
     );
   }
 }
 
- export default NumberOfEvents;
+export default NumberOfEvents;
