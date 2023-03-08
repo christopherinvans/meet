@@ -56,23 +56,19 @@ class CitySearch extends Component {
 
   render() {
     return (
-      <div className="CitySearch">
+      <div className="CitySearch" onBlur={this.hideSuggestions}>
         <InfoAlert text={this.state.infoText} />
-        <h4 className="number-title">City:</h4>
         <input
           type="text"
           className="city"
-          placeholder="Search by city..."
           value={this.state.query}
           onChange={this.handleInputChanged}
+          placeholder="Search for location..."
           onFocus={() => {
             this.setState({ showSuggestions: true });
           }}
         />
-        <ul
-          className="suggestions"
-          style={this.state.showSuggestions ? {} : { display: "none" }}
-        >
+        <ul className="suggestions" style={this.getSuggestionsStyle()}>
           {this.state.suggestions.map((suggestion) => (
             <li
               key={suggestion}
@@ -81,7 +77,7 @@ class CitySearch extends Component {
               {suggestion}
             </li>
           ))}
-          <li key="all" onClick={() => this.handleItemClicked("all")}>
+          <li onClick={() => this.handleItemClicked("all")}>
             <b>See all cities</b>
           </li>
         </ul>
