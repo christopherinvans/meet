@@ -13,81 +13,60 @@ class App extends Component {
     numberOfEvents: 32,
   };
 
-  updateEvents = (location, eventCount) => {
-    console.log('update events token valid: ', this.state.tokenCheck)
-    const { currentLocation, numberOfEvents } = this.state;
-    if (location) {
-      getEvents().then((response) => {
-        const locationEvents =
-          location === "all"
-            ? response.events
-            : response.events.filter((event) => event.location === location);
-        const events = locationEvents.slice(0, numberOfEvents);
-        return this.setState({
-          events: events,
-          currentLocation: location,
-          locations: response.locations,
-        });
+  componentDidMount() {
+    this.mounted = true;
+    if (!navigator.onLine) {
+      this.setState({
+        infoText: "You are offline. Data shown may be out-of-date.",
       });
     } else {
-      getEvents().then((response) => {
-        const locationEvents =
-          currentLocation === "all"
-            ? response.events
-            : response.events.filter(
-                (event) => event.location === currentLocation
-              );
-        const events = locationEvents.slice(0, eventCount);
-        return this.setState({
-          events: events,
-          numberOfEvents: eventCount,
-          locations: response.locations,
-        });
+      this.setState({
+        infoText: "",
       });
     }
-  };
-
-
-  updateNumberOfEvents(number) {
-    this.setState({
-      numberOfEvents: number,
+    getEvents().then((events) => {
+      if (this.mounted) {
+        this.setState({ events, locations: extractLocations(events) });
+      }
     });
-  }
-
-  async componentDidMount() {
-    const accessToken = localStorage.getItem("access_token");
-    const validToken = accessToken !== null  ? await checkToken(accessToken) : false;
-    this.setState({ tokenCheck: validToken });
-    if(validToken === true) this.updateEvents()
-    const searchParams = new URLSearchParams(window.location.search);
-    const code = searchParams.get("code");
-
-    this.mounted = true;
-    if (code && this.mounted === true && validToken === false){ 
-      this.setState({tokenCheck:true });
-      this.updateEvents()
-    }
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
   }
 
   getData = () => {
     const { locations, events } = this.state;
     const data = locations.map((location) => {
       const number = events.filter((event) => event.location === location)
-        .length;
-      const city = location.split(" ").shift();
+        .length; //Maps the locations and filters events by each location to get the length of the resulting array
+      const city = location.split(",").shift(); //Splits location at every comma to only return city
       return { city, number };
     });
     return data;
+  };
+
+  componentWillUnmount() {
+    this.mounted = false;
+  }
+
+  updateEvents = (location, eventCount) => {
+    const numberOfEvents = eventCount || this.state.numberOfEvents;
+    getEvents().then((events) => {
+      const locationEvents =
+        location === "all"
+          ? events
+          : events.filter((event) => event.location === location);
+      const filteredEvents = locationEvents.slice(0, numberOfEvents);
+      this.setState({
+        events: filteredEvents,
+        numberOfEvents: numberOfEvents,
+      });
+    });
   };
 
   render() {
     const { locations, numberOfEvents, events } = this.state;
     return (
       <div className="App">
+        <h1>Meet App</h1>
+        <h4>Choose your nearest city</h4>
        <CitySearch updateEvents={this.updateEvents} locations={locations} />
        <EventList events={events} />
         <NumberOfEvents
