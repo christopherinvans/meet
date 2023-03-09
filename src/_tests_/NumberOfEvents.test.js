@@ -5,32 +5,30 @@ import NumberOfEvents from "../NumberOfEvents";
 describe("<NumberOfEvents /> component", () => {
   let NumberOfEventsWrapper;
   beforeAll(() => {
-    NumberOfEventsWrapper = shallow(
-      <NumberOfEvents updateNumberOfEvents={() => {}} />
+    NumberOfEventsWrapper = shallow(<NumberOfEvents updateEvents={() => {}} />);
+  });
+
+  test("render textbox element", () => {
+    expect(NumberOfEventsWrapper.find(".numberOfEvents")).toHaveLength(1);
+  });
+
+  test("render text input correctly", () => {
+    const numberOfEvents = NumberOfEventsWrapper.state("numberOfEvents");
+    expect(
+      NumberOfEventsWrapper.find("#numberOfEvents__input").prop("value")
+    ).toBe(numberOfEvents);
+  });
+
+  test("change state when input changes", () => {
+    const eventObject = { target: { value: 32 } };
+    NumberOfEventsWrapper.find("#numberOfEvents__input").simulate(
+      "change",
+      eventObject
     );
+    expect(NumberOfEventsWrapper.state("numberOfEvents")).toBe(32);
   });
 
-  test("renders the component", () => {
-    expect(NumberOfEventsWrapper).toBeDefined();
+  test("show number of events input label", () => {
+    expect(NumberOfEventsWrapper.find(".numberOfEvents label")).toHaveLength(1);
   });
-
-  test("the input should have a default value of 32", () => {
-    expect(NumberOfEventsWrapper.find("input.num").prop("type")).toBe("number");
-    expect(NumberOfEventsWrapper.state("num")).toBe(32);
-  });
-
-  test("the input should have the value given in the num prop", () => {
-    const NumberOfEventsWrapperWithProp = shallow(
-      <NumberOfEvents num={20} updateNumberOfEvents={() => {}} />
-    );
-    expect(NumberOfEventsWrapperWithProp.state("num")).toBe(20);
-  });
-
-  test("input should change on user input", () => {
-    expect(NumberOfEventsWrapper.state("num")).toBe(32);
-    NumberOfEventsWrapper.find("input.num").simulate("change", {
-     target: { value: 12 },
-   });
-   expect(NumberOfEventsWrapper.state("num")).toBe(12);
- });
 });
