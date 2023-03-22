@@ -48,12 +48,18 @@ class App extends Component {
 
   updateEvents = (location, eventCount) => {
     const numberOfEvents = eventCount || this.state.numberOfEvents;
+    console.log({numberOfEvents, eventCount})
     getEvents().then((events) => {
+      console.log(events)
       const locationEvents =
         location === "all"
           ? events
           : events.filter((event) => event.location === location);
-      const filteredEvents = locationEvents.slice(0, numberOfEvents);
+          console.log(locationEvents)
+          const filteredEvents = (locationEvents.length === 0) ? events.slice(0, numberOfEvents) : locationEvents.slice(0, numberOfEvents)
+          // const filteredEvents = locationEvents.slice(0, numberOfEvents);
+          // const filteredEvents1 = locationEvents.slice(0, Number(numberOfEvents));
+          // console.log(filteredEvents1)
       this.setState({
         events: filteredEvents,
         numberOfEvents: numberOfEvents,
