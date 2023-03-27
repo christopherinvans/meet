@@ -32,12 +32,7 @@ import NProgress from 'nprogress';
       NProgress.done();
       return mockData;
     }
-    if (!navigator.onLine) {
-      const { events } = await localStorage.getItem("lastEvents");
-      NProgress.done();
-      
-      return { events: JSON.parse(events), locations: extractLocations(events) };
-    }
+  
   
     const token = await getAccessToken();
   
@@ -47,11 +42,11 @@ import NProgress from 'nprogress';
       const result = await axios.get(url);
       if (result.data) {
         var locations = extractLocations(result.data.events);
-        localStorage.setItem("lastEvents", JSON.stringify(result.data.events));
+        localStorage.setItem("lastEvents", JSON.stringify(result.data));
         localStorage.setItem("locations", JSON.stringify(locations));
       }
       NProgress.done();
-      return { events: result.data.events, locations };
+      return result.data.events;
     }
   };
 
