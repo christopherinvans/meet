@@ -25,7 +25,7 @@ import NProgress from 'nprogress';
     return result;
   };
 
-  export const getEvents = async (max_results = 32) => {
+  export const getEvents = async () => {
     NProgress.start();
   
     if (window.location.href.startsWith("http://localhost")) {

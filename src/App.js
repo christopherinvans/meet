@@ -3,77 +3,71 @@ import './App.css';
 import EventList from './EventList';
 import CitySearch from './CitySearch';
 import NumberOfEvents from "./NumberOfEvents";
-import WelcomeScreen from './WelcomeScreen';
-import { getEvents, extractLocations, checkToken, getAccessToken } from
-'./api';
+import { extractLocations, getEvents, checkToken, getAccessToken } from "./api";
 import './nprogress.css';
-import { InfoAlert } from './Alert';
 
 class App extends Component {
   state = {
     events: [],
     locations: [],
     numberOfEvents: 32,
-    selectedLocation: 'all',
-    showWelcomeScreen: undefined
   };
 
-  
-  updateEvents = (location, eventCount) => {
-    const { numberOfEvents } = this.state;
-    if (location === undefined) location = this.state.selectedLocation;
-    getEvents().then((events) => {
-      const locationEvents =
-        location === 'all'
-          ? events
-          : events.filter((event) => event.location === location);
-      eventCount = eventCount === undefined ? numberOfEvents : eventCount;
+  componentDidMount() {
+    this.mounted = true;
+    if (!navigator.onLine) {
       this.setState({
-        events: locationEvents.slice(0, eventCount),
-        selectedLocation: location,
-        numberOfEvents: eventCount,
+        infoText: "You are offline. Data shown may be out-of-date.",
       });
+    } else {
+      this.setState({
+        infoText: "",
+      });
+    }
+    getEvents().then((events) => {
+      if (this.mounted) {
+        this.setState({ events, locations: extractLocations(events) });
+      }
     });
-  };
+  }
 
   getData = () => {
     const { locations, events } = this.state;
     const data = locations.map((location) => {
-      const number = events.filter(
-        (event) => event.location === location
-      ).length;
-      const city = location.split(', ').shift();
+      const number = events.filter((event) => event.location === location)
+        .length; //Maps the locations and filters events by each location to get the length of the resulting array
+      const city = location.split(",").shift(); //Splits location at every comma to only return city
       return { city, number };
     });
     return data;
   };
 
-  async componentDidMount() {
-    this.mounted = true;
-
-    const accessToken = localStorage.getItem('access_token');
-    const isTokenValid = (await checkToken(accessToken)).error ? false : true;
-    const searchParams = new URLSearchParams(window.location.search);
-    const code = searchParams.get('code');
-    const isLocal = window.location.href.startsWith('http://localhost')
-      ? true
-      : code || isTokenValid;
-    this.setState({ showWelcomeScreen: !isLocal });
-    if (isLocal && this.mounted) {
-      getEvents().then((events) => {
-        if (this.mounted) {
-          this.setState({ events, locations: extractLocations(events) });
-        }
-      });
-    }
-  }
-
   componentWillUnmount() {
     this.mounted = false;
   }
+
+  updateEvents = (location, eventCount) => {
+    const numberOfEvents = eventCount || this.state.numberOfEvents;
+    console.log({numberOfEvents, eventCount})
+    getEvents().then((events) => {
+      // console.log(events)
+      const locationEvents =
+        location === "all"
+          ? events
+          : events.filter((event) => event.location === location);
+          // console.log(locationEvents)
+          const filteredEvents = (locationEvents.length === 0) ? events.slice(0, numberOfEvents) : locationEvents.slice(0, numberOfEvents)
+          // const filteredEvents = locationEvents.slice(0, numberOfEvents);
+          // const filteredEvents1 = locationEvents.slice(0, Number(numberOfEvents));
+          // console.log(filteredEvents1)
+      this.setState({
+        events: filteredEvents,
+        numberOfEvents: numberOfEvents,
+      });
+    });
+  };
+
   render() {
-    if (this.state.showWelcomeScreen === undefined) return <div
-    className="App" />
     const { locations, numberOfEvents, events } = this.state;
     return (
       <div className="App">
@@ -85,8 +79,6 @@ class App extends Component {
           updateEvents={this.updateEvents}
           numberOfEvents={numberOfEvents}
         />
-        <WelcomeScreen showWelcomeScreen={this.state.showWelcomeScreen}
-getAccessToken={() => { getAccessToken() }} />
       </div>
     );
   }
