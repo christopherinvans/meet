@@ -5,12 +5,15 @@ import CitySearch from './CitySearch';
 import NumberOfEvents from "./NumberOfEvents";
 import { extractLocations, getEvents, checkToken, getAccessToken } from "./api";
 import './nprogress.css';
+import { InfoAlert } from './Alert';
 
 class App extends Component {
   state = {
     events: [],
     locations: [],
     numberOfEvents: 32,
+    selectedLocation: 'all',
+    showWelcomeScreen: undefined,
   };
 
   componentDidMount() {
@@ -48,18 +51,12 @@ class App extends Component {
 
   updateEvents = (location, eventCount) => {
     const numberOfEvents = eventCount || this.state.numberOfEvents;
-    console.log({numberOfEvents, eventCount})
     getEvents().then((events) => {
-      // console.log(events)
       const locationEvents =
         location === "all"
           ? events
           : events.filter((event) => event.location === location);
-          // console.log(locationEvents)
           const filteredEvents = (locationEvents.length === 0) ? events.slice(0, numberOfEvents) : locationEvents.slice(0, numberOfEvents)
-          // const filteredEvents = locationEvents.slice(0, numberOfEvents);
-          // const filteredEvents1 = locationEvents.slice(0, Number(numberOfEvents));
-          // console.log(filteredEvents1)
       this.setState({
         events: filteredEvents,
         numberOfEvents: numberOfEvents,
@@ -73,6 +70,14 @@ class App extends Component {
       <div className="App">
         <h1>Meet App</h1>
         <h4>Choose your nearest city</h4>
+        <div>
+          {!navigator.onLine && (
+            <InfoAlert
+              className="alert-centered"
+              text="App is currently offline. You are seeing your cached data."
+            />
+          )}
+        </div>
        <CitySearch updateEvents={this.updateEvents} locations={locations} />
        <EventList events={events} />
         <NumberOfEvents
