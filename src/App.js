@@ -6,6 +6,7 @@ import NumberOfEvents from "./NumberOfEvents";
 import { extractLocations, getEvents, checkToken, getAccessToken } from "./api";
 import './nprogress.css';
 import { InfoAlert } from './Alert';
+import WelcomeScreen from './WelcomeScreen';
 
 class App extends Component {
   state = {
@@ -16,23 +17,22 @@ class App extends Component {
     showWelcomeScreen: undefined,
   };
 
-  componentDidMount() {
+  async componentDidMount() {
     this.mounted = true;
-    if (!navigator.onLine) {
-      this.setState({
-        infoText: "You are offline. Data shown may be out-of-date.",
-      });
-    } else {
-      this.setState({
-        infoText: "",
-      });
-    }
+    const accessToken = localStorage.getItem('access_token');
+    const isTokenValid = (await checkToken(accessToken)).error ? false :
+    true;
+    const searchParams = new URLSearchParams(window.location.search);
+    const code = searchParams.get("code");
+    this.setState({ showWelcomeScreen: !(code || isTokenValid) });
+    if ((code || isTokenValid) && this.mounted) {
     getEvents().then((events) => {
-      if (this.mounted) {
-        this.setState({ events, locations: extractLocations(events) });
-      }
+    if (this.mounted) {
+    this.setState({ events, locations: extractLocations(events) });
+    }
     });
-  }
+    }
+    }
 
   getData = () => {
     const { locations, events } = this.state;
@@ -65,6 +65,8 @@ class App extends Component {
   };
 
   render() {
+    if (this.state.showWelcomeScreen === undefined) return <div
+className="App" />
     const { locations, numberOfEvents, events } = this.state;
     return (
       <div className="App">
@@ -84,6 +86,8 @@ class App extends Component {
           updateEvents={this.updateEvents}
           numberOfEvents={numberOfEvents}
         />
+        <WelcomeScreen showWelcomeScreen={this.state.showWelcomeScreen}
+getAccessToken={() => { getAccessToken() }} />
       </div>
     );
   }
