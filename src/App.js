@@ -27,52 +27,58 @@ class App extends Component {
     showWelcomeScreen: undefined,
   };
 
-  async componentDidMount() {
-    this.mounted = true;
-    const accessToken = localStorage.getItem('access_token');
-    const isTokenValid = (await checkToken(accessToken)).error ? false :
-    true;
-    const searchParams = new URLSearchParams(window.location.search);
-    const code = searchParams.get("code");
-    this.setState({ showWelcomeScreen: !(code || isTokenValid) });
-    if ((code || isTokenValid) && this.mounted) {
+  updateEvents = (location, eventCount) => {
+    const { numberOfEvents } = this.state;
+    if (location === undefined) location = this.state.selectedLocation;
     getEvents().then((events) => {
-    if (this.mounted) {
-    this.setState({ events, locations: extractLocations(events) });
-    }
+      const locationEvents =
+        location === 'all'
+          ? events
+          : events.filter((event) => event.location === location);
+      eventCount = eventCount === undefined ? numberOfEvents : eventCount;
+      this.setState({
+        events: locationEvents.slice(0, eventCount),
+        selectedLocation: location,
+        numberOfEvents: eventCount,
+      });
     });
-    }
-    }
+  };
 
   getData = () => {
     const { locations, events } = this.state;
     const data = locations.map((location) => {
-      const number = events.filter((event) => event.location === location)
-        .length; //Maps the locations and filters events by each location to get the length of the resulting array
-      const city = location.split(",").shift(); //Splits location at every comma to only return city
+      const number = events.filter(
+        (event) => event.location === location
+      ).length;
+      const city = location.split(', ').shift();
       return { city, number };
     });
     return data;
   };
 
+  async componentDidMount() {
+    this.mounted = true;
+
+    const accessToken = localStorage.getItem('access_token');
+    const isTokenValid = (await checkToken(accessToken)).error ? false : true;
+    const searchParams = new URLSearchParams(window.location.search);
+    const code = searchParams.get('code');
+    const isLocal = window.location.href.startsWith('http://localhost')
+      ? true
+      : code || isTokenValid;
+    this.setState({ showWelcomeScreen: !isLocal });
+    if (isLocal && this.mounted) {
+      getEvents().then((events) => {
+        if (this.mounted) {
+          this.setState({ events, locations: extractLocations(events) });
+        }
+      });
+    }
+  }
+
   componentWillUnmount() {
     this.mounted = false;
   }
-
-  updateEvents = (location, eventCount) => {
-    const numberOfEvents = eventCount || this.state.numberOfEvents;
-    getEvents().then((events) => {
-      const locationEvents =
-        location === "all"
-          ? events
-          : events.filter((event) => event.location === location);
-          const filteredEvents = (locationEvents.length === 0) ? events.slice(0, numberOfEvents) : locationEvents.slice(0, numberOfEvents)
-      this.setState({
-        events: filteredEvents,
-        numberOfEvents: numberOfEvents,
-      });
-    });
-  };
 
   render() {
     const { locations, events, numberOfEvents, showWelcomeScreen } = this.state;
