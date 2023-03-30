@@ -75,9 +75,9 @@ class App extends Component {
   };
 
   render() {
-    if (this.state.showWelcomeScreen === undefined) return <div
-className="App" />
-    const { locations, numberOfEvents, events } = this.state;
+    const { locations, events, numberOfEvents, showWelcomeScreen } = this.state;
+
+    if (showWelcomeScreen === undefined) return <div className="App" />;
     return (
       <div className="App">
         <h1>Meet App</h1>
@@ -90,15 +90,24 @@ className="App" />
             />
           )}
         </div>
-       <CitySearch updateEvents={this.updateEvents} locations={locations} />
+        <CitySearch locations={locations} updateEvents={this.updateEvents} />
         <NumberOfEvents
-          updateEvents={this.updateEvents}
-          numberOfEvents={numberOfEvents}
+          num={numberOfEvents}
+          updateNumberOfEvents={this.updateEvents}
         />
+        <h4>Events in each city</h4>
+
         <div className="data-vis-wrapper">
-          <EventGenre locations={locations} events={events} />
+          <EventGenre events={events} />
           <ResponsiveContainer height={400}>
-            <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+            <ScatterChart
+              margin={{
+                top: 20,
+                right: 20,
+                bottom: 20,
+                left: 20,
+              }}
+            >
               <CartesianGrid />
               <XAxis type="category" dataKey="city" name="city" />
               <YAxis
@@ -107,14 +116,18 @@ className="App" />
                 dataKey="number"
                 name="number of events"
               />
-              <Tooltip cursor={{ strokeDasharray: "3 3" }} />
+              <Tooltip cursor={{ strokeDasharray: '3 3' }} />
               <Scatter data={this.getData()} fill="#8884d8" />
             </ScatterChart>
           </ResponsiveContainer>
         </div>
-        <WelcomeScreen showWelcomeScreen={this.state.showWelcomeScreen}
-getAccessToken={() => { getAccessToken() }} />
         <EventList events={events} />
+        <WelcomeScreen
+          showWelcomeScreen={showWelcomeScreen}
+          getAccessToken={() => {
+            getAccessToken();
+          }}
+        />
       </div>
     );
   }
